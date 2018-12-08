@@ -10,9 +10,8 @@ class MuslConan(ConanFile):
     default_options = {'shared': False}
 
     def configure(self):
-        print("*"*20)
-        print(self.settings.os)
-        print(self.settings.os_build)
+        if self.settings.os != "Linux":
+            raise ConanInvalidConfiguration("Required Linux to compile")
 
     def source(self):
         url = "https://www.musl-libc.org/releases/musl-{version}.tar.gz".format(version=self.version)
@@ -24,4 +23,9 @@ class MuslConan(ConanFile):
             autotools = AutoToolsBuildEnvironment(self)
             autotools.configure(args=args)
             autotools.make()
+
+    def package(self):
+        with tools.chdir("musl-{v}".format(v=self.version)):
+            autotools = AutoToolsBuildEnvironment(self)
+            autotools.install()
 
